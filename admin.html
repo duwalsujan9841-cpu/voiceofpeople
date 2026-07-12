@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NewsPortal – Admin Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Source Serif 4', serif;
+      background: #f7f5f2;
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: #fff;
+      border-right: 1px solid #e5e0d8;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+    .sidebar-brand {
+      padding: 20px 18px;
+      border-bottom: 1px solid #e5e0d8;
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 18px;
+    }
+    .sidebar-brand .brand-mark { color: #c0392b; }
+    .sidebar-brand small {
+      display: block;
+      font-family: 'Source Serif 4', serif;
+      font-weight: 400;
+      font-size: 11px;
+      color: #999;
+      margin-top: 2px;
+      letter-spacing: .5px;
+      text-transform: uppercase;
+    }
+
+    .sidebar-nav { flex: 1; padding: 10px 0; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 18px;
+      font-size: 14px;
+      color: #555;
+      text-decoration: none;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+      transition: background .15s, color .15s;
+      background: none;
+      border-top: none;
+      border-right: none;
+      border-bottom: none;
+      width: 100%;
+      text-align: left;
+      font-family: 'Source Serif 4', serif;
+      position: relative;
+    }
+    .sidebar-link:hover { background: #f6f3ee; color: #c0392b; }
+    .sidebar-link.active {
+      background: #fdf1ef;
+      color: #c0392b;
+      border-left-color: #c0392b;
+      font-weight: 600;
+    }
+    .sidebar-link .icon { font-size: 16px; width: 18px; text-align: center; }
+    .nav-badge{
+      margin-left: auto;
+      background: #c0392b;
+      color: #fff;
+      font-size: 10.5px;
+      font-weight: 700;
+      padding: 1px 7px;
+      border-radius: 10px;
+      display: none;
+    }
+    .nav-badge.show{ display: inline-block; }
+
+    .sidebar-footer {
+      padding: 14px 18px;
+      border-top: 1px solid #e5e0d8;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .back-link {
+      font-size: 13px;
+      color: #777;
+      text-decoration: none;
+    }
+    .back-link:hover { color: #c0392b; }
+
+    .logout-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      justify-content: center;
+      width: 100%;
+      padding: 9px 12px;
+      font-family: 'Source Serif 4', serif;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #c0392b;
+      background: #fdf1ef;
+      border: 1px solid #f5d9d5;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    .logout-btn:hover { background: #fbe3df; }
+    .logout-btn .icon { font-size: 14px; }
+
+    /* ── Main ── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+    }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 28px;
+      background: #fff;
+      border-bottom: 1px solid #e5e0d8;
+    }
+    .topbar h1 {
+      font-family: 'Playfair Display', serif;
+      font-weight: 900;
+      font-size: 22px;
+    }
+    .admin-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      color: #555;
+    }
+    .admin-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #c0392b, #e67e22);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 12px;
+    }
+
+    .content { padding: 24px 28px; overflow-y: auto; flex: 1; }
+
+    /* ── Stat cards ── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 26px;
+    }
+    .stat-card {
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 10px;
+      padding: 18px;
+    }
+    .stat-card .label { font-size: 12px; color: #999; text-transform: uppercase; letter-spacing: .4px; }
+    .stat-card .value { font-family: 'Playfair Display', serif; font-size: 26px; font-weight: 900; margin-top: 6px; }
+    .stat-card .delta { font-size: 12px; color: #4a9d5f; margin-top: 4px; }
+    .stat-card .delta.down { color: #c0392b; }
+
+    /* ── Panels ── */
+    .panel {
+      display: none;
+      background: #fff;
+      border: 1px solid #e5e0d8;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .panel.active { display: block; }
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e0d8;
+    }
+    .panel-header h2 { font-family: 'Playfair Display', serif; font-size: 17px; font-weight: 700; }
+
+    .btn {
+      font-family: 'Source Serif 4', serif;
+      font-size: 13px;
+      padding: 9px 16px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn:hover { opacity: .88; }
+    .btn-primary { background: #c0392b; color: #fff; }
+    .btn-outline { background: none; border: 1px solid #e0dbd0; color: #555; }
+
+    /* ── Article upload form ── */
+    .upload-form { padding: 20px; display: flex; flex-direction: column; gap: 14px; }
+    .form-row { display: flex; gap: 14px; }
+    .form-group { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-size: 12.5px; color: #555; font-weight: 600; }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      font-family: 'Source Serif 4', serif;
+      font-size: 14px;
+      padding: 9px 12px;
+      border: 1px solid #e0dbd0;
+      border-radius: 6px;
+      outline: none;
+      background: #fdfcfa;
+    }
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus { border-color: #c0392b; }
+    .form-group textarea { resize: vertical; min-height: 110px; }
+
+    .file-drop {
+      border: 2px dashed #e0dbd0;
+      border-radius: 8px;
+      padding: 26px;
+      text-align: center;
+      color: #999;
+      font-size: 13.5px;
+      cursor: pointer;
+      transition: border-color .15s, background .15s;
+    }
+    .file-drop:hover, .file-drop.dragover { border-color: #c0392b; background: #fdf9f7; }
+    .file-drop .icon { font-size: 24px; display: block; margin-bottom: 8px; }
+    .file-drop input { display: none; }
+    .file-preview {
+      margin-top: 10px;
+      font-size: 12.5px;
+      color: #4a9d5f;
+      display: none;
+    }
+
+    .form-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 4px; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; }
+    th {
+      text-align: left;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: #999;
+      padding: 12px 20px;
+      border-bottom: 1px solid #e5e0d8;
+      background: #fdfcfa;
+    }
+    td {
+      padding: 13px 20px;
+      font-size: 13.5px;
+      border-bottom: 1px solid #f0ede7;
+      vertical-align: middle;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: #f9f7f3; }
+
+    .row-avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: #eee;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      margin-right: 8px;
+      color: #666;
+      vertical-align: middle;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .tag.published { background: #eefaf0; color: #2f9e4f; }
+    .tag.draft { background: #fff6e6; color: #b9860a; }
+    .tag.pending { background: #eaf4ff; color: #2b7fd6; }
+    .tag.rejected { background: #fdeeee; color: #c0392b; }
+    .tag.role-admin { background: #fdeeee; color: #c0392b; }
+    .tag.role-editor { background: #eaf4ff; color: #2b7fd6; }
+    .tag.role-user { background: #f0ede7; color: #666; }
+
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      font-size: 14px;
+      padding: 5px 7px;
+      border-radius: 5px;
+      color: #777;
+      transition: background .15s;
+    }
+    .icon-btn:hover { background: #f0ede7; }
+    .icon-btn.danger:hover { background: #fdeeee; color: #c0392b; }
+
+    .comment-text { max-width: 320px; color: #444; }
+
+    /* ── User posts panel ── */
+    .post-card-list { display: flex; flex-direction: column; }
+    .post-card {
+      display: flex;
+      gap: 14px;
+      padding: 16px 20px;
+      border-bottom: 1px solid #f0ede7;
+    }
+    .post-card:last-child { border-bottom: none; }
+    .post-card .post-thumb {
+      width: 64px; height: 64px;
+      border-radius: 8px;
+      object-fit: cover;
+      background: #f0ede7;
+      flex-shrink: 0;
+    }
+    .post-card .post-body { flex: 1; min-width: 0; }
+    .post-card .post-meta {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 12px; color: #999; margin-bottom: 4px;
+    }
+    .post-card .post-meta .who { font-weight: 600; color: #333; }
+    .post-card .post-text { font-size: 14px; color: #333; line-height: 1.5; word-break: break-word; }
+    .post-card .post-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: flex-start; }
+    .post-card .post-actions .btn { padding: 7px 14px; font-size: 12.5px; }
+    .btn-approve { background: #2f9e4f; color: #fff; }
+    .btn-reject { background: #fdeeee; color: #c0392b; }
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: #999;
+      font-size: 13.5px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+      .form-row { flex-direction: column; }
+    }
+    @media (max-width: 700px) {
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Sidebar ── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      News<span class="brand-mark">Portal</span>
+      <small>Admin Panel</small>
+    </div>
+    <nav class="sidebar-nav">
+      <button class="sidebar-link active" data-panel="articles"><span class="icon">📰</span> Articles</button>
+      <button class="sidebar-link" data-panel="posts"><span class="icon">👤</span> User Posts <span class="nav-badge" id="postsBadge">0</span></button>
+      <button class="sidebar-link" data-panel="users"><span class="icon">👥</span> Users</button>
+      <button class="sidebar-link" data-panel="comments"><span class="icon">💬</span> Comments</button>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="homepage.html" class="back-link">&#8592; Back to site</a>
+      <button class="logout-btn" id="logoutBtn"><span class="icon">🚪</span> Logout</button>
+    </div>
+  </aside>
+
+  <!-- ── Main ── -->
+  <div class="main">
+    <div class="topbar">
+      <h1>Dashboard</h1>
+      <div class="admin-badge">
+        <div class="admin-avatar">A</div>
+        <span>Admin</span>
+      </div>
+    </div>
+
+    <div class="content">
+
+      <!-- Stats -->
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="label">Total Articles</div>
+          <div class="value">248</div>
+          <div class="delta">+12 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Registered Users</div>
+          <div class="value">3,914</div>
+          <div class="delta">+87 this week</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Pending User Posts</div>
+          <div class="value" id="pendingPostsStat">0</div>
+          <div class="delta down">Needs review</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">Published Today</div>
+          <div class="value">5</div>
+          <div class="delta">On schedule</div>
+        </div>
+      </div>
+
+      <!-- ── ARTICLES PANEL ── -->
+      <div class="panel active" id="panel-articles">
+        <div class="panel-header">
+          <h2>Upload New Article</h2>
+        </div>
+        <form class="upload-form" id="articleForm">
+          <div class="form-group">
+            <label for="artTitle">Title</label>
+            <input type="text" id="artTitle" placeholder="Article headline" required />
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="artCategory">Category</label>
+              <select id="artCategory">
+                <option>Politics</option>
+                <option>Business</option>
+                <option>Sports</option>
+                <option>Technology</option>
+                <option>Opinion</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="artAuthor">Author</label>
+              <input type="text" id="artAuthor" placeholder="Author name" />
+            </div>
+            <div class="form-group">
+              <label for="artStatus">Status</label>
+              <select id="artStatus">
+                <option value="draft">Draft</option>
+                <option value="published">Publish now</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="artContent">Content</label>
+            <textarea id="artContent" placeholder="Write the article body…"></textarea>
+          </div>
+
+          <div class="form-group">
+            <label>Cover Image</label>
+            <div class="file-drop" id="fileDrop">
+              <span class="icon">🖼️</span>
+              Click to upload or drag an image here
+              <input type="file" id="artImage" accept="image/*" />
+            </div>
+            <div class="file-preview" id="filePreview"></div>
+          </div>
+
+          <div class="form-actions">
+            <button type="button" class="btn btn-outline">Save as draft</button>
+            <button type="submit" class="btn btn-primary">Publish Article</button>
+          </div>
+        </form>
+
+        <div class="panel-header">
+          <h2>Recent Articles</h2>
+        </div>
+        <table>
+          <thead>
+            <tr><th>Title</th><th>Category</th><th>Author</th><th>Status</th><th>Date</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Local Elections: Full Coverage</td>
+              <td>Politics</td>
+              <td>Ramesh Shrestha</td>
+              <td><span class="tag published">Published</span></td>
+              <td>Jul 1, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+            <tr>
+              <td>Budget 2083: What It Means for You</td>
+              <td>Business</td>
+              <td>Anita Poudel</td>
+              <td><span class="tag published">Published</span></td>
+              <td>Jun 30, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+            <tr>
+              <td>Tech Startups Rising in Kathmandu</td>
+              <td>Technology</td>
+              <td>Sujal K.</td>
+              <td><span class="tag draft">Draft</span></td>
+              <td>Jun 29, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── USER POSTS PANEL ── -->
+      <div class="panel" id="panel-posts">
+        <div class="panel-header">
+          <h2>User Posts Awaiting Approval</h2>
+          <button class="btn btn-outline" id="refreshPostsBtn">🔄 Refresh</button>
+        </div>
+        <div class="post-card-list" id="postCardList">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- ── USERS PANEL ── -->
+      <div class="panel" id="panel-users">
+        <div class="panel-header">
+          <h2>Registered Users</h2>
+          <button class="btn btn-primary">+ Add User</button>
+        </div>
+        <table>
+          <thead>
+            <tr><th>User</th><th>Email</th><th>Role</th><th>Joined</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="row-avatar">RS</span>Ramesh Shrestha</td>
+              <td>ramesh@newsportal.com</td>
+              <td><span class="tag role-editor">Editor</span></td>
+              <td>Jan 12, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+            <tr>
+              <td><span class="row-avatar">AP</span>Anita Poudel</td>
+              <td>anita@newsportal.com</td>
+              <td><span class="tag role-editor">Editor</span></td>
+              <td>Feb 3, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+            <tr>
+              <td><span class="row-avatar">SK</span>Sujal K.</td>
+              <td>sujal@newsportal.com</td>
+              <td><span class="tag role-admin">Admin</span></td>
+              <td>Mar 18, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+            <tr>
+              <td><span class="row-avatar">RG</span>Rita Gurung</td>
+              <td>rita.g@gmail.com</td>
+              <td><span class="tag role-user">Reader</span></td>
+              <td>May 22, 2026</td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- ── COMMENTS PANEL ── -->
+      <div class="panel" id="panel-comments">
+        <div class="panel-header">
+          <h2>Comment Moderation</h2>
+        </div>
+        <table>
+          <thead>
+            <tr><th>User</th><th>Comment</th><th>Article</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><span class="row-avatar">RG</span>Rita G.</td>
+              <td class="comment-text">"Great in-depth reporting, thank you for covering this!"</td>
+              <td>Local Elections: Full Coverage</td>
+              <td><span class="tag pending">Pending</span></td>
+              <td><button class="icon-btn">✅</button><button class="icon-btn danger">✖️</button></td>
+            </tr>
+            <tr>
+              <td><span class="row-avatar">MK</span>Milan K.</td>
+              <td class="comment-text">"Disagree with a few points but well written overall."</td>
+              <td>Budget 2083: What It Means for You</td>
+              <td><span class="tag pending">Pending</span></td>
+              <td><button class="icon-btn">✅</button><button class="icon-btn danger">✖️</button></td>
+            </tr>
+            <tr>
+              <td><span class="row-avatar">SK</span>Sujal K.</td>
+              <td class="comment-text">"Looking forward to the follow-up piece on this."</td>
+              <td>Tech Startups Rising in Kathmandu</td>
+              <td><span class="tag published">Approved</span></td>
+              <td><button class="icon-btn">✏️</button><button class="icon-btn danger">🗑️</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Sidebar panel switching ──
+    const links = document.querySelectorAll('.sidebar-link');
+    const panels = document.querySelectorAll('.panel');
+    links.forEach(link => {
+      link.addEventListener('click', () => {
+        links.forEach(l => l.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+        link.classList.add('active');
+        document.getElementById('panel-' + link.dataset.panel).classList.add('active');
+        if (link.dataset.panel === 'posts') renderUserPosts();
+      });
+    });
+
+    // ── File upload preview (article cover image) ──
+    const fileDrop = document.getElementById('fileDrop');
+    const fileInput = document.getElementById('artImage');
+    const filePreview = document.getElementById('filePreview');
+
+    fileDrop.addEventListener('click', () => fileInput.click());
+    fileInput.addEventListener('change', () => {
+      if (fileInput.files.length) {
+        filePreview.style.display = 'block';
+        filePreview.textContent = '✓ Selected: ' + fileInput.files[0].name;
+      }
+    });
+    fileDrop.addEventListener('dragover', e => { e.preventDefault(); fileDrop.classList.add('dragover'); });
+    fileDrop.addEventListener('dragleave', () => fileDrop.classList.remove('dragover'));
+    fileDrop.addEventListener('drop', e => {
+      e.preventDefault();
+      fileDrop.classList.remove('dragover');
+      if (e.dataTransfer.files.length) {
+        fileInput.files = e.dataTransfer.files;
+        filePreview.style.display = 'block';
+        filePreview.textContent = '✓ Selected: ' + e.dataTransfer.files[0].name;
+      }
+    });
+
+    // ── Form submit (mockup only, no backend) ──
+    document.getElementById('articleForm').addEventListener('submit', e => {
+      e.preventDefault();
+      alert('Article submitted (frontend mockup — connect a backend to save data).');
+    });
+
+    // ── Logout ──
+    document.getElementById('logoutBtn').addEventListener('click', () => {
+      window.location.href = 'index.html';
+    });
+
+    // ══════════════════════════════════
+    // USER POSTS MODERATION
+    // Reads submissions saved by footer.html (same-origin localStorage).
+    // NOTE: this is a frontend-only mockup. In production, posts would be
+    // fetched from and updated via a real backend API instead.
+    // ══════════════════════════════════
+    const POSTS_KEY = 'newsportal_user_posts';
+
+    function getPosts(){
+      try{ return JSON.parse(localStorage.getItem(POSTS_KEY)) || []; }
+      catch(e){ return []; }
+    }
+    function savePosts(posts){
+      localStorage.setItem(POSTS_KEY, JSON.stringify(posts));
+    }
+    function timeAgo(iso){
+      const diffMs = Date.now() - new Date(iso).getTime();
+      const mins = Math.floor(diffMs / 60000);
+      if (mins < 1) return 'just now';
+      if (mins < 60) return mins + 'm ago';
+      const hrs = Math.floor(mins / 60);
+      if (hrs < 24) return hrs + 'h ago';
+      return Math.floor(hrs / 24) + 'd ago';
+    }
+
+    function updateBadges(){
+      const pendingCount = getPosts().filter(p => p.status === 'pending').length;
+      const badge = document.getElementById('postsBadge');
+      badge.textContent = pendingCount;
+      badge.classList.toggle('show', pendingCount > 0);
+      document.getElementById('pendingPostsStat').textContent = pendingCount;
+    }
+
+    function renderUserPosts(){
+      const list = document.getElementById('postCardList');
+      const posts = getPosts().filter(p => p.status === 'pending');
+      updateBadges();
+
+      if (!posts.length){
+        list.innerHTML = '<div class="empty-state">No user posts waiting for approval right now.</div>';
+        return;
+      }
+
+      list.innerHTML = posts.map(p => `
+        <div class="post-card" data-id="${p.id}">
+          ${p.image ? `<img class="post-thumb" src="${p.image}" alt="attached photo"/>` : ''}
+          <div class="post-body">
+            <div class="post-meta"><span class="who">${p.author}</span> · ${timeAgo(p.createdAt)} <span class="tag pending">Pending</span></div>
+            <div class="post-text">${p.text ? p.text.replace(/</g,'&lt;') : '<em style="color:#999;">(photo only, no caption)</em>'}</div>
+          </div>
+          <div class="post-actions">
+            <button class="btn btn-approve" data-action="approve" data-id="${p.id}">Approve</button>
+            <button class="btn btn-reject" data-action="reject" data-id="${p.id}">Reject</button>
+          </div>
+        </div>
+      `).join('');
+
+      list.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const id = btn.dataset.id;
+          const action = btn.dataset.action;
+          const posts = getPosts();
+          const idx = posts.findIndex(p => p.id === id);
+          if (idx === -1) return;
+          posts[idx].status = action === 'approve' ? 'approved' : 'rejected';
+          savePosts(posts);
+          renderUserPosts();
+        });
+      });
+    }
+
+    document.getElementById('refreshPostsBtn').addEventListener('click', renderUserPosts);
+
+    // Initial load + badge count on page load
+    renderUserPosts();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,824 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Settings – NewsPortal</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+:root[data-theme="light"]{
+  --bg:#f2f0eb; --bg2:#e8e5de; --surface:#ffffff; --surface2:#f7f5f0;
+  --border:#d4cfc4; --text:#1a1714; --text2:#4a4540; --text3:#8a8278;
+  --accent:#c0392b; --accent2:#e74c3c; --tag-bg:#ede9e0;
+  --nav-bg:#1a1714; --nav-text:#f2f0eb;
+  --shadow:rgba(0,0,0,0.08); --shadow2:rgba(0,0,0,0.15);
+  --green:#27ae60; --yellow:#f39c12; --red:#e74c3c;
+  --toggle-on:#c0392b; --input-bg:#f7f5f0;
+}
+:root[data-theme="dark"]{
+  --bg:#0f0e0d; --bg2:#171614; --surface:#1e1c1a; --surface2:#252320;
+  --border:#2e2b28; --text:#ede9e0; --text2:#a09890; --text3:#605850;
+  --accent:#e74c3c; --accent2:#ff6b5b; --tag-bg:#2a2724;
+  --nav-bg:#0a0908; --nav-text:#ede9e0;
+  --shadow:rgba(0,0,0,0.35); --shadow2:rgba(0,0,0,0.55);
+  --green:#2ecc71; --yellow:#f1c40f; --red:#e74c3c;
+  --toggle-on:#e74c3c; --input-bg:#252320;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Source Serif 4',serif;
+  background:var(--bg); color:var(--text);
+  min-height:100vh;
+  transition:background .3s,color .3s;
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:sticky;top:0;z-index:900;
+  background:var(--nav-bg); color:var(--nav-text);
+  display:flex;align-items:center;
+  padding:0 28px; height:58px; gap:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:900;color:var(--accent);
+  letter-spacing:-.5px;text-decoration:none;
+}
+.logo span{color:var(--nav-text);}
+.topbar-title{
+  font-size:14px;color:rgba(255,255,255,.45);
+  display:flex;align-items:center;gap:8px;
+}
+.topbar-title::before{content:'›';font-size:18px;}
+.back-btn{
+  margin-left:auto;
+  background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);
+  color:var(--nav-text);border-radius:6px;
+  padding:6px 14px;font-size:13px;cursor:pointer;
+  font-family:'Source Serif 4',serif;
+  transition:background .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.back-btn:hover{background:rgba(255,255,255,.18);}
+.toggle-pill{
+  width:46px;height:24px;background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);border-radius:999px;cursor:pointer;
+  position:relative;display:flex;align-items:center;padding:0 3px;
+  transition:background .3s;flex-shrink:0;
+}
+.toggle-knob{
+  width:18px;height:18px;background:var(--nav-text);border-radius:50%;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  font-size:11px;display:flex;align-items:center;justify-content:center;
+}
+[data-theme="dark"] .toggle-knob{transform:translateX(22px);}
+
+/* ── LAYOUT ── */
+.settings-layout{
+  display:grid;grid-template-columns:240px 1fr;
+  max-width:1100px;margin:32px auto;padding:0 24px;gap:28px;
+}
+
+/* ── SIDEBAR NAV ── */
+.settings-nav{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:16px 0;height:fit-content;
+  position:sticky;top:80px;
+  box-shadow:0 2px 12px var(--shadow);
+  transition:background .3s;
+}
+.nav-section-label{
+  font-size:10px;text-transform:uppercase;letter-spacing:.12em;
+  color:var(--text3);padding:10px 18px 6px;font-weight:700;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:10px 18px;cursor:pointer;
+  font-size:13.5px;color:var(--text2);
+  border-left:3px solid transparent;
+  transition:background .15s,color .15s,border-color .15s;
+}
+.nav-item:hover{background:var(--tag-bg);color:var(--text);}
+.nav-item.active{
+  color:var(--accent);font-weight:600;
+  border-left-color:var(--accent);
+  background:var(--tag-bg);
+}
+.nav-item .icon{font-size:16px;width:20px;text-align:center;}
+
+/* ── SETTINGS PANELS ── */
+.settings-content{display:flex;flex-direction:column;gap:20px;}
+
+.panel{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:12px;padding:24px;
+  box-shadow:0 2px 12px var(--shadow);
+  transition:background .3s;
+  display:none;
+}
+.panel.active{display:block;animation:fadeIn .2s ease;}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.panel-title{
+  font-family:'Playfair Display',serif;
+  font-size:20px;font-weight:700;color:var(--text);
+  margin-bottom:6px;
+  display:flex;align-items:center;gap:10px;
+}
+.panel-sub{font-size:13px;color:var(--text3);margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border);}
+
+/* Setting row */
+.setting-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 0;border-bottom:1px solid var(--border);gap:20px;
+}
+.setting-row:last-child{border-bottom:none;padding-bottom:0;}
+.setting-info{flex:1;}
+.setting-label{font-size:14px;font-weight:600;color:var(--text);margin-bottom:2px;}
+.setting-desc{font-size:12px;color:var(--text3);line-height:1.5;}
+
+/* Toggle switch */
+.sw{position:relative;width:44px;height:24px;flex-shrink:0;}
+.sw input{opacity:0;width:0;height:0;position:absolute;}
+.sw-track{
+  position:absolute;inset:0;
+  background:var(--border);border-radius:999px;
+  cursor:pointer;transition:background .25s;
+}
+.sw input:checked+.sw-track{background:var(--toggle-on);}
+.sw-knob{
+  position:absolute;top:3px;left:3px;
+  width:18px;height:18px;background:#fff;border-radius:50%;
+  pointer-events:none;
+  transition:transform .25s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.sw input:checked~.sw-knob{transform:translateX(20px);}
+
+/* Select */
+.setting-select{
+  background:var(--input-bg);border:1px solid var(--border);
+  border-radius:6px;padding:8px 12px;
+  font-family:'Source Serif 4',serif;font-size:13px;
+  color:var(--text);outline:none;cursor:pointer;
+  transition:border-color .2s,background .3s;min-width:150px;
+}
+.setting-select:focus{border-color:var(--accent);}
+
+/* Input text */
+.setting-input{
+  background:var(--input-bg);border:1px solid var(--border);
+  border-radius:6px;padding:9px 13px;
+  font-family:'Source Serif 4',serif;font-size:13px;
+  color:var(--text);outline:none;width:100%;
+  transition:border-color .2s,background .3s;
+  margin-top:8px;
+}
+.setting-input:focus{border-color:var(--accent);}
+.setting-input::placeholder{color:var(--text3);}
+
+/* Full-width setting (for inputs) */
+.setting-row.full{flex-direction:column;align-items:flex-start;}
+
+/* Color palette */
+.color-swatches{display:flex;gap:8px;flex-wrap:wrap;}
+.swatch{
+  width:28px;height:28px;border-radius:50%;cursor:pointer;
+  border:3px solid transparent;transition:transform .15s,border-color .15s;
+}
+.swatch:hover{transform:scale(1.15);}
+.swatch.active{border-color:var(--text);}
+
+/* Slider */
+.setting-slider{
+  width:180px;accent-color:var(--accent);cursor:pointer;
+}
+
+/* Avatar section */
+.avatar-section{display:flex;align-items:center;gap:16px;margin-bottom:20px;}
+.avatar-big{
+  width:72px;height:72px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#e67e22);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:28px;color:#fff;font-weight:700;
+}
+.avatar-actions{display:flex;flex-direction:column;gap:6px;}
+.btn-sm{
+  padding:7px 14px;border-radius:6px;font-size:12px;font-weight:700;
+  cursor:pointer;border:none;font-family:'Source Serif 4',serif;
+  transition:opacity .2s,transform .15s;
+}
+.btn-sm:hover{opacity:.85;transform:translateY(-1px);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-ghost{background:var(--tag-bg);color:var(--text2);border:1px solid var(--border);}
+.btn-danger{background:transparent;color:var(--red);border:1px solid var(--red);}
+
+/* Save button */
+.save-row{
+  display:flex;justify-content:flex-end;gap:10px;
+  margin-top:20px;padding-top:16px;border-top:1px solid var(--border);
+}
+.btn-save{
+  padding:10px 24px;background:var(--accent);color:#fff;
+  border:none;border-radius:7px;font-size:14px;font-weight:700;
+  cursor:pointer;font-family:'Source Serif 4',serif;
+  transition:background .2s,transform .15s;
+}
+.btn-save:hover{background:var(--accent2);transform:translateY(-1px);}
+.btn-cancel{
+  padding:10px 20px;background:transparent;color:var(--text2);
+  border:1px solid var(--border);border-radius:7px;font-size:14px;
+  cursor:pointer;font-family:'Source Serif 4',serif;
+  transition:background .2s;
+}
+.btn-cancel:hover{background:var(--tag-bg);}
+
+/* Danger zone */
+.danger-zone{
+  background:rgba(231,76,60,.06);border:1px solid rgba(231,76,60,.25);
+  border-radius:8px;padding:16px;margin-top:16px;
+}
+.danger-title{font-size:13px;font-weight:700;color:var(--red);margin-bottom:10px;}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:28px;right:28px;
+  background:var(--green);color:#fff;
+  border-radius:8px;padding:12px 20px;
+  font-size:13px;font-weight:600;
+  box-shadow:0 4px 20px rgba(0,0,0,.25);
+  transform:translateY(80px);opacity:0;
+  transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;
+  z-index:999;pointer-events:none;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* Notification badge colours */
+.badge-dot{
+  display:inline-block;width:8px;height:8px;
+  border-radius:50%;margin-right:4px;vertical-align:middle;
+}
+
+@media(max-width:700px){
+  .settings-layout{grid-template-columns:1fr;}
+  .settings-nav{position:static;display:flex;flex-wrap:wrap;padding:8px;}
+  .nav-item{border-left:none;border-radius:6px;flex:1;min-width:80px;justify-content:center;}
+  .nav-item.active{border-left:none;outline:2px solid var(--accent);}
+  .nav-section-label{display:none;}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPBAR -->
+<nav class="topbar">
+  <a href="homepage.html" class="logo">News<span>Portal</span></a>
+  <span class="topbar-title">Settings</span>
+  <button class="back-btn" onclick="window.location.href='homepage.html'">← Back to Home</button>
+  <div style="width:12px;"></div>
+  <div class="toggle-pill" onclick="toggleTheme()" title="Toggle theme">
+    <div class="toggle-knob"><span id="themeIcon">☀️</span></div>
+  </div>
+</nav>
+
+<div class="settings-layout">
+
+  <!-- ── LEFT SIDEBAR NAV ── -->
+  <nav class="settings-nav">
+    <div class="nav-section-label">Account</div>
+    <div class="nav-item active" onclick="showPanel('profile',this)">
+      <span class="icon">👤</span> Profile
+    </div>
+    <div class="nav-item" onclick="showPanel('security',this)">
+      <span class="icon">🔐</span> Security
+    </div>
+
+    <div class="nav-section-label">Preferences</div>
+    <div class="nav-item" onclick="showPanel('appearance',this)">
+      <span class="icon">🎨</span> Appearance
+    </div>
+    <div class="nav-item" onclick="showPanel('notifications',this)">
+      <span class="icon">🔔</span> Notifications
+    </div>
+    <div class="nav-item" onclick="showPanel('feed',this)">
+      <span class="icon">📰</span> Feed & Content
+    </div>
+    <div class="nav-item" onclick="showPanel('language',this)">
+      <span class="icon">🌐</span> Language & Region
+    </div>
+
+    <div class="nav-section-label">Privacy</div>
+    <div class="nav-item" onclick="showPanel('privacy',this)">
+      <span class="icon">🛡️</span> Privacy
+    </div>
+    <div class="nav-item" onclick="showPanel('data',this)">
+      <span class="icon">📦</span> Data & Storage
+    </div>
+
+    <div class="nav-section-label">Support</div>
+    <div class="nav-item" onclick="showPanel('about',this)">
+      <span class="icon">ℹ️</span> About
+    </div>
+  </nav>
+
+  <!-- ── PANELS ── -->
+  <div class="settings-content">
+
+    <!-- PROFILE -->
+    <div class="panel active" id="panel-profile">
+      <div class="panel-title">👤 Profile Settings</div>
+      <div class="panel-sub">Manage your public profile and personal information.</div>
+
+      <div class="avatar-section">
+        <div class="avatar-big">RK</div>
+        <div class="avatar-actions">
+          <button class="btn-sm btn-primary">Upload Photo</button>
+          <button class="btn-sm btn-ghost">Remove</button>
+        </div>
+      </div>
+
+      <div class="setting-row full">
+        <div class="setting-label">Full Name</div>
+        <input class="setting-input" type="text" value="Raj Kumar" placeholder="Your full name"/>
+      </div>
+      <div class="setting-row full">
+        <div class="setting-label">Username</div>
+        <input class="setting-input" type="text" value="@rajkumar" placeholder="@username"/>
+      </div>
+      <div class="setting-row full">
+        <div class="setting-label">Email Address</div>
+        <input class="setting-input" type="email" value="raj@example.com" placeholder="email@example.com"/>
+      </div>
+      <div class="setting-row full">
+        <div class="setting-label">Bio</div>
+        <textarea class="setting-input" rows="3" placeholder="Tell readers about yourself…">News enthusiast. Based in Kathmandu.</textarea>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Public Profile</div>
+          <div class="setting-desc">Allow others to see your profile and activity</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Profile saved!')">Save Changes</button>
+      </div>
+    </div>
+
+    <!-- SECURITY -->
+    <div class="panel" id="panel-security">
+      <div class="panel-title">🔐 Security</div>
+      <div class="panel-sub">Keep your account safe with strong security settings.</div>
+
+      <div class="setting-row full">
+        <div class="setting-label">Current Password</div>
+        <input class="setting-input" type="password" placeholder="Enter current password"/>
+      </div>
+      <div class="setting-row full">
+        <div class="setting-label">New Password</div>
+        <input class="setting-input" type="password" placeholder="Enter new password"/>
+      </div>
+      <div class="setting-row full">
+        <div class="setting-label">Confirm New Password</div>
+        <input class="setting-input" type="password" placeholder="Confirm new password"/>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Two-Factor Authentication</div>
+          <div class="setting-desc">Add extra security with OTP verification on login</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Login Alerts</div>
+          <div class="setting-desc">Get notified of new sign-ins to your account</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Active Sessions</div>
+          <div class="setting-desc">2 devices currently signed in</div>
+        </div>
+        <button class="btn-sm btn-danger" onclick="showToast('All other sessions signed out.')">Sign Out All</button>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Security settings updated!')">Update Password</button>
+      </div>
+    </div>
+
+    <!-- APPEARANCE -->
+    <div class="panel" id="panel-appearance">
+      <div class="panel-title">🎨 Appearance</div>
+      <div class="panel-sub">Customize how NewsPortal looks and feels for you.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Dark Mode</div>
+          <div class="setting-desc">Switch between light and dark interface</div>
+        </div>
+        <label class="sw">
+          <input type="checkbox" id="darkTogglePanel" onchange="toggleThemeFromPanel(this)"/>
+          <div class="sw-track"></div><div class="sw-knob"></div>
+        </label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Accent Colour</div>
+          <div class="setting-desc">Choose your portal highlight colour</div>
+        </div>
+        <div class="color-swatches">
+          <div class="swatch active" style="background:#c0392b;" onclick="pickColor(this,'#c0392b','#e74c3c')" title="Red"></div>
+          <div class="swatch" style="background:#2980b9;" onclick="pickColor(this,'#2980b9','#3498db')" title="Blue"></div>
+          <div class="swatch" style="background:#27ae60;" onclick="pickColor(this,'#27ae60','#2ecc71')" title="Green"></div>
+          <div class="swatch" style="background:#8e44ad;" onclick="pickColor(this,'#8e44ad','#9b59b6')" title="Purple"></div>
+          <div class="swatch" style="background:#d35400;" onclick="pickColor(this,'#d35400','#e67e22')" title="Orange"></div>
+        </div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Font Size</div>
+          <div class="setting-desc">Adjust reading text size</div>
+        </div>
+        <select class="setting-select">
+          <option>Small</option>
+          <option selected>Medium</option>
+          <option>Large</option>
+          <option>Extra Large</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Card Density</div>
+          <div class="setting-desc">How compact the news feed appears</div>
+        </div>
+        <select class="setting-select">
+          <option>Compact</option>
+          <option selected>Default</option>
+          <option>Comfortable</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Animations</div>
+          <div class="setting-desc">Enable page transitions and hover effects</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Reset to Default</button>
+        <button class="btn-save" onclick="showToast('Appearance saved!')">Apply Changes</button>
+      </div>
+    </div>
+
+    <!-- NOTIFICATIONS -->
+    <div class="panel" id="panel-notifications">
+      <div class="panel-title">🔔 Notifications</div>
+      <div class="panel-sub">Control what alerts you receive and how you receive them.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label"><span class="badge-dot" style="background:#e74c3c;"></span>Breaking News</div>
+          <div class="setting-desc">Instant alerts for major breaking stories</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label"><span class="badge-dot" style="background:#3498db;"></span>Daily Digest</div>
+          <div class="setting-desc">Morning summary of top stories</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label"><span class="badge-dot" style="background:#27ae60;"></span>Followed Topics</div>
+          <div class="setting-desc">Updates from topics you follow</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label"><span class="badge-dot" style="background:#9b59b6;"></span>Comments & Replies</div>
+          <div class="setting-desc">When someone replies to your comments</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label"><span class="badge-dot" style="background:#f39c12;"></span>Email Notifications</div>
+          <div class="setting-desc">Receive important updates via email</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Quiet Hours</div>
+          <div class="setting-desc">Mute all notifications between 11 PM – 7 AM</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Notification preferences saved!')">Save</button>
+      </div>
+    </div>
+
+    <!-- FEED & CONTENT -->
+    <div class="panel" id="panel-feed">
+      <div class="panel-title">📰 Feed & Content</div>
+      <div class="panel-sub">Control what news appears in your feed and how it is ranked.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Default Scope</div>
+          <div class="setting-desc">What scope to show when you open the app</div>
+        </div>
+        <select class="setting-select">
+          <option>Global</option>
+          <option selected>National</option>
+          <option>Local</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Personalised Feed</div>
+          <div class="setting-desc">Use your reading history to rank stories</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Show Sponsored Stories</div>
+          <div class="setting-desc">Include clearly labelled promoted content</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Autoplay Videos</div>
+          <div class="setting-desc">Automatically play inline video content</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Stories per Page</div>
+          <div class="setting-desc">How many articles to load at once</div>
+        </div>
+        <select class="setting-select">
+          <option>10</option>
+          <option selected>20</option>
+          <option>30</option>
+          <option>50</option>
+        </select>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Feed settings saved!')">Save</button>
+      </div>
+    </div>
+
+    <!-- LANGUAGE -->
+    <div class="panel" id="panel-language">
+      <div class="panel-title">🌐 Language & Region</div>
+      <div class="panel-sub">Choose your preferred language and regional settings.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Interface Language</div>
+          <div class="setting-desc">Language used throughout the app</div>
+        </div>
+        <select class="setting-select">
+          <option selected>English</option>
+          <option>नेपाली (Nepali)</option>
+          <option>हिन्दी (Hindi)</option>
+          <option>中文</option>
+          <option>Español</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Region</div>
+          <div class="setting-desc">Used for local news and weather</div>
+        </div>
+        <select class="setting-select">
+          <option selected>Nepal</option>
+          <option>India</option>
+          <option>United States</option>
+          <option>United Kingdom</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Time Zone</div>
+          <div class="setting-desc">Used for story timestamps</div>
+        </div>
+        <select class="setting-select">
+          <option selected>Asia/Kathmandu (UTC+5:45)</option>
+          <option>Asia/Kolkata (UTC+5:30)</option>
+          <option>UTC</option>
+          <option>America/New_York</option>
+        </select>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Date Format</div>
+          <div class="setting-desc">How dates are displayed</div>
+        </div>
+        <select class="setting-select">
+          <option selected>DD/MM/YYYY</option>
+          <option>MM/DD/YYYY</option>
+          <option>YYYY-MM-DD</option>
+        </select>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Language & region saved!')">Save</button>
+      </div>
+    </div>
+
+    <!-- PRIVACY -->
+    <div class="panel" id="panel-privacy">
+      <div class="panel-title">🛡️ Privacy</div>
+      <div class="panel-sub">Control your data and how others interact with you.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Search History</div>
+          <div class="setting-desc">Save your search queries for better recommendations</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Reading History</div>
+          <div class="setting-desc">Track articles you have read</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Analytics Sharing</div>
+          <div class="setting-desc">Help improve NewsPortal with anonymous usage data</div>
+        </div>
+        <label class="sw"><input type="checkbox"/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Allow Direct Messages</div>
+          <div class="setting-desc">Let other users message you</div>
+        </div>
+        <select class="setting-select">
+          <option>Everyone</option>
+          <option selected>Following Only</option>
+          <option>Nobody</option>
+        </select>
+      </div>
+
+      <div class="save-row">
+        <button class="btn-cancel">Cancel</button>
+        <button class="btn-save" onclick="showToast('Privacy settings saved!')">Save</button>
+      </div>
+    </div>
+
+    <!-- DATA -->
+    <div class="panel" id="panel-data">
+      <div class="panel-title">📦 Data & Storage</div>
+      <div class="panel-sub">Manage your data, downloads, and account deletion.</div>
+
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Cache Size</div>
+          <div class="setting-desc">Locally stored images and articles (42 MB)</div>
+        </div>
+        <button class="btn-sm btn-ghost" onclick="showToast('Cache cleared!')">Clear Cache</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Download Your Data</div>
+          <div class="setting-desc">Export a copy of all your account data</div>
+        </div>
+        <button class="btn-sm btn-primary" onclick="showToast('Export started — check your email.')">Export</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Offline Reading</div>
+          <div class="setting-desc">Save articles to read without internet</div>
+        </div>
+        <label class="sw"><input type="checkbox" checked/><div class="sw-track"></div><div class="sw-knob"></div></label>
+      </div>
+
+      <div class="danger-zone">
+        <div class="danger-title">⚠️ Danger Zone</div>
+        <div class="setting-row" style="padding-top:0;">
+          <div class="setting-info">
+            <div class="setting-label" style="color:var(--red);">Delete Account</div>
+            <div class="setting-desc">Permanently remove your account and all data. This cannot be undone.</div>
+          </div>
+          <button class="btn-sm btn-danger" onclick="if(confirm('Are you sure? This cannot be undone.'))showToast('Account deletion requested.')">Delete</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ABOUT -->
+    <div class="panel" id="panel-about">
+      <div class="panel-title">ℹ️ About NewsPortal</div>
+      <div class="panel-sub">Application information and legal links.</div>
+
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Version</div></div>
+        <span style="font-size:13px;color:var(--text3);">v1.0.0 (Build 2026.03)</span>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Platform</div></div>
+        <span style="font-size:13px;color:var(--text3);">Web · Desktop</span>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Privacy Policy</div></div>
+        <button class="btn-sm btn-ghost">View →</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Terms of Service</div></div>
+        <button class="btn-sm btn-ghost">View →</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Contact Support</div></div>
+        <button class="btn-sm btn-ghost">support@newsportal.com</button>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info">
+          <div class="setting-label">Send Feedback</div>
+          <div class="setting-desc">Help us improve the platform</div>
+        </div>
+        <button class="btn-sm btn-primary" onclick="showToast('Thanks for your feedback!')">Send</button>
+      </div>
+    </div>
+
+  </div><!-- /settings-content -->
+</div><!-- /settings-layout -->
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Theme ──
+function toggleTheme(){
+  const root=document.documentElement;
+  const isDark=root.getAttribute('data-theme')==='dark';
+  root.setAttribute('data-theme',isDark?'light':'dark');
+  document.getElementById('themeIcon').textContent=isDark?'☀️':'🌙';
+  document.getElementById('darkTogglePanel').checked=!isDark;
+}
+function toggleThemeFromPanel(cb){
+  const root=document.documentElement;
+  root.setAttribute('data-theme',cb.checked?'dark':'light');
+  document.getElementById('themeIcon').textContent=cb.checked?'🌙':'☀️';
+}
+// Sync panel toggle on load
+window.addEventListener('DOMContentLoaded',()=>{
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  document.getElementById('darkTogglePanel').checked=isDark;
+});
+
+// ── Panel navigation ──
+function showPanel(id,el){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('panel-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── Colour picker ──
+function pickColor(el,c1,c2){
+  document.querySelectorAll('.swatch').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  document.documentElement.style.setProperty('--accent',c1);
+  document.documentElement.style.setProperty('--accent2',c2);
+  document.documentElement.style.setProperty('--toggle-on',c1);
+  document.documentElement.style.setProperty('--badge',c1);
+  document.documentElement.style.setProperty('--scope-active',c1);
+}
+
+// ── Toast ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent='✓ '+msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+</script>
+</body>
+</html>

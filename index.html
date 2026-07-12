@@ -1,8 +1,418 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" data-theme="light">
 <head>
-    <meta http-equiv="refresh" content="0; url=login.html">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>The Voice of the People</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root[data-theme="light"]{
+    --bg:#f6f5f2;
+    --panel:#0f2438;
+    --panel-2:#15304a;
+    --surface:#ffffff;
+    --ink:#0f1720;
+    --ink-soft:#4c5661;
+    --ink-mute:#8b93a0;
+    --line:#e2e1dc;
+    --line-strong:#c9c7bf;
+    --gold:#c79a3d;
+    --gold-ink:#241a04;
+    --shadow:rgba(15,23,32,0.10);
+    --on-panel:#f2efe6;
+    --on-panel-mute:#9fb0bf;
+  }
+  :root[data-theme="dark"]{
+    --bg:#0b0f13;
+    --panel:#0a1620;
+    --panel-2:#0f1e2c;
+    --surface:#151b21;
+    --ink:#eef0f2;
+    --ink-soft:#b7bec6;
+    --ink-mute:#7c848d;
+    --line:#242a30;
+    --line-strong:#31373d;
+    --gold:#d9ac4d;
+    --gold-ink:#241a04;
+    --shadow:rgba(0,0,0,0.5);
+    --on-panel:#eef0f2;
+    --on-panel-mute:#8a97a3;
+  }
+
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;width:100%;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    overflow:hidden;
+    transition:background .35s ease, color .35s ease;
+  }
+
+  /* ── Top bar ── */
+  .topbar{
+    position:fixed; top:0; left:0; right:0;
+    display:flex; justify-content:flex-end; align-items:center;
+    padding:20px 4%;
+    z-index:50;
+  }
+  .theme-toggle-wrap{ display:flex; align-items:center; gap:10px; }
+  .theme-label{
+    font-size:12px; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--ink-mute);
+  }
+  .toggle-pill{
+    position:relative; width:46px; height:25px;
+    background:var(--line-strong);
+    border-radius:999px; cursor:pointer; flex-shrink:0;
+    transition:background .3s;
+  }
+  .toggle-pill input{ position:absolute; opacity:0; width:0; height:0; }
+  .toggle-pill .knob{
+    position:absolute; top:2.5px; left:2.5px;
+    width:20px; height:20px; border-radius:50%;
+    background:var(--surface);
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+    transition:transform .3s cubic-bezier(.4,0,.2,1);
+  }
+  input:checked ~ .knob{ transform:translateX(21px); }
+
+  /* ── Layout: split screen ── */
+  .layout{
+    height:100vh; width:100%;
+    display:grid;
+    grid-template-columns:44% 56%;
+  }
+
+  /* ── Left brand panel ── */
+  .brand-panel{
+    position:relative;
+    background:linear-gradient(160deg, var(--panel) 0%, var(--panel-2) 100%);
+    color:var(--on-panel);
+    display:flex; flex-direction:column; justify-content:space-between;
+    padding:56px 60px;
+    overflow:hidden;
+  }
+  .brand-panel::after{
+    content:'';
+    position:absolute; inset:0;
+    background:
+      radial-gradient(600px 400px at 85% 10%, rgba(199,154,61,0.12), transparent 60%),
+      radial-gradient(500px 500px at 10% 95%, rgba(199,154,61,0.08), transparent 60%);
+    pointer-events:none;
+  }
+
+  .brand-top{ position:relative; z-index:1; display:flex; align-items:center; gap:14px; }
+  .brand-top img{
+    width:320px; height:320px; object-fit:contain;
+    filter:drop-shadow(0 2px 6px rgba(0,0,0,.35));
+  }
+  .brand-wordmark{
+    font-family:'Fraunces',serif; font-weight:600; font-size:23px;
+    letter-spacing:.01em; color:var(--on-panel);
+  }
+  .brand-wordmark span{ color:var(--gold); }
+
+  .brand-mid{ position:relative; z-index:1; }
+  .brand-eyebrow{
+    font-size:12px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:20px;
+    display:flex; align-items:center; gap:9px;
+  }
+  .brand-eyebrow::before{ content:''; width:22px; height:1.5px; background:var(--gold); }
+
+  h1.headline{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:clamp(34px, 3.4vw, 50px);
+    line-height:1.12;
+    max-width:11ch;
+    color:var(--on-panel);
+  }
+
+  .brand-sub{
+    margin-top:20px;
+    max-width:36ch;
+    font-size:15.5px;
+    line-height:1.65;
+    color:var(--on-panel-mute);
+  }
+
+  .brand-bottom{
+    position:relative; z-index:1;
+    display:flex; gap:36px;
+    padding-top:26px;
+    border-top:1px solid rgba(255,255,255,0.12);
+  }
+  .stat .num{ font-family:'Fraunces',serif; font-weight:600; font-size:22px; color:var(--on-panel); }
+  .stat .lbl{ font-size:11px; letter-spacing:.08em; text-transform:uppercase; color:var(--on-panel-mute); margin-top:2px; }
+
+  /* ── Right auth panel ── */
+  .auth-panel{
+    display:flex; align-items:center; justify-content:center;
+    padding:40px;
+    overflow-y:auto;
+  }
+
+  .auth-card{
+    width:100%; max-width:400px;
+  }
+
+  .auth-heading{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:28px;
+    color:var(--ink);
+    margin-bottom:6px;
+  }
+  .auth-subtext{
+    font-size:14.5px; color:var(--ink-soft); margin-bottom:32px;
+  }
+
+  .field-label{
+    font-size:12.5px; font-weight:600; color:var(--ink); margin-bottom:6px; display:block;
+  }
+  .field-group{ margin-bottom:16px; }
+
+  input{
+    width:100%;
+    padding:13px 14px;
+    border:1.5px solid var(--line);
+    border-radius:9px;
+    background:var(--surface);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    font-size:14.5px;
+    outline:none;
+    transition:border-color .2s, box-shadow .2s;
+  }
+  input:focus{
+    border-color:var(--panel-2);
+    box-shadow:0 0 0 3px rgba(15,36,56,0.12);
+  }
+  :root[data-theme="dark"] input:focus{
+    box-shadow:0 0 0 3px rgba(217,172,77,0.15);
+    border-color:var(--gold);
+  }
+  input::placeholder{ color:var(--ink-mute); }
+
+  button{
+    font-family:'Inter',sans-serif;
+    font-weight:600;
+    font-size:14.5px;
+    border-radius:9px;
+    cursor:pointer;
+    border:1.5px solid transparent;
+    transition:transform .15s ease, background .2s ease, box-shadow .2s ease;
+  }
+
+  .btn-primary{
+    width:100%;
+    padding:14px;
+    background:var(--panel);
+    color:#fff;
+    margin-top:6px;
+    box-shadow:0 6px 18px rgba(15,36,56,0.22);
+  }
+  .btn-primary:hover{ background:var(--panel-2); transform:translateY(-1px); }
+  .btn-primary:active{ transform:translateY(0); }
+
+  .divider{
+    display:flex; align-items:center; gap:12px;
+    margin:24px 0;
+    color:var(--ink-mute); font-size:12px; letter-spacing:.05em; text-transform:uppercase;
+  }
+  .divider::before, .divider::after{ content:''; flex:1; height:1px; background:var(--line); }
+
+  .switch-row{
+    text-align:center;
+    font-size:14px;
+    color:var(--ink-soft);
+  }
+  .switch-row button{
+    background:none; border:none; padding:0; margin-left:4px;
+    color:var(--panel); font-weight:600; text-decoration:underline;
+    text-underline-offset:3px;
+  }
+  :root[data-theme="dark"] .switch-row button{ color:var(--gold); }
+  .switch-row button:hover{ transform:none; }
+
+  .form-error{
+    display:none;
+    color:#b3311f;
+    font-size:12.5px;
+    margin-top:2px;
+    margin-bottom:14px;
+    padding:9px 11px;
+    background:rgba(179,49,31,0.08);
+    border:1px solid rgba(179,49,31,0.25);
+    border-radius:7px;
+  }
+  :root[data-theme="dark"] .form-error{ color:#ff8b78; }
+
+  .trust-note{
+    display:flex; align-items:center; gap:8px;
+    margin-top:28px;
+    font-size:12px; color:var(--ink-mute);
+  }
+  .trust-note svg{ flex-shrink:0; }
+
+  /* ── Forms panels (login/signup swap) ── */
+  .form-panel{ display:none; }
+  .form-panel.active{ display:block; animation:fadeIn .25s ease; }
+  @keyframes fadeIn{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:translateY(0);} }
+
+  @media (max-width: 920px){
+    .layout{ grid-template-columns:1fr; grid-template-rows:auto 1fr; height:auto; min-height:100vh; }
+    body{ overflow-y:auto; }
+    .brand-panel{ padding:40px 6%; }
+    .brand-bottom{ flex-wrap:wrap; row-gap:14px; }
+    .auth-panel{ padding:40px 6% 60px; }
+  }
+
+  button:focus-visible, .toggle-pill:focus-within, input:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+</style>
 </head>
 <body>
+
+<div class="topbar">
+  <div class="theme-toggle-wrap">
+    <span class="theme-label" id="themeLabel">Light</span>
+    <label class="toggle-pill" title="Toggle theme">
+      <input type="checkbox" id="themeToggle" onchange="toggleTheme(this)" />
+      <span class="knob"></span>
+    </label>
+  </div>
+</div>
+
+<div class="layout">
+
+  <!-- ── Brand panel ── -->
+  <div class="brand-panel">
+    <div class="brand-top">
+      <img src="src/assets/logo.png" alt="Voice of the People logo">
+      <span class="brand-wordmark">Voice<span> of the People</span></span>
+    </div>
+
+    <div class="brand-mid">
+      <div class="brand-eyebrow">Trusted civic platform</div>
+      <h1 class="headline">Your voice, on the record.</h1>
+      <p class="brand-sub">The Voice of the People is more than just a sound; it is the power of unity. It is the bridge between silence and action.</p>
+    </div>
+
+    
+  </div>
+
+  <!-- ── Auth panel ── -->
+  <div class="auth-panel">
+    <div class="auth-card">
+
+      <div class="form-panel active" id="loginPanel">
+        <h2 class="auth-heading">Welcome back</h2>
+        <p class="auth-subtext">Log in to continue to your account.</p>
+
+        <form id="loginForm" onsubmit="return handleLogin(event)">
+          <div class="field-group">
+            <label class="field-label" for="loginEmail">Email</label>
+            <input type="email" id="loginEmail" placeholder="you@example.com" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="loginPassword">Password</label>
+            <input type="password" id="loginPassword" placeholder="Enter your password" required />
+          </div>
+          <div class="form-error" id="loginError"></div>
+          <button type="submit" class="btn-primary">Log in</button>
+        </form>
+
+        <div class="divider">or</div>
+        <p class="switch-row">New here?<button type="button" onclick="switchPanel('signup')">Create an account</button></p>
+      </div>
+
+      <div class="form-panel" id="signupPanel">
+        <h2 class="auth-heading">Create your account</h2>
+        <p class="auth-subtext">Join the record in under a minute.</p>
+
+        <form action="homepage.html">
+          <div class="field-group">
+            <label class="field-label" for="suUsername">Username</label>
+            <input type="text" id="suUsername" placeholder="Choose a username" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="suEmail">Email</label>
+            <input type="email" id="suEmail" placeholder="you@example.com" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="suPassword">Password</label>
+            <input type="password" id="suPassword" placeholder="Create a password" required />
+          </div>
+          <div class="field-group">
+            <label class="field-label" for="suDate">Date of birth</label>
+            <input type="date" id="suDate" required />
+          </div>
+          <button type="submit" class="btn-primary">Register</button>
+        </form>
+
+        <div class="divider">or</div>
+        <p class="switch-row">Already have an account?<button type="button" onclick="switchPanel('login')">Log in</button></p>
+      </div>
+
+      <div class="trust-note">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        Your information is encrypted and never shared without consent.
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script>
+  const root = document.documentElement;
+  const label = document.getElementById('themeLabel');
+
+  function toggleTheme(cb){
+    if(cb.checked){
+      root.setAttribute('data-theme','dark');
+      label.textContent = 'Dark';
+    } else {
+      root.setAttribute('data-theme','light');
+      label.textContent = 'Light';
+    }
+  }
+
+  function switchPanel(which){
+    document.getElementById('loginPanel').classList.remove('active');
+    document.getElementById('signupPanel').classList.remove('active');
+    document.getElementById(which + 'Panel').classList.add('active');
+  }
+
+  const ADMIN_EMAIL = 'admin@gmail.com';
+  const ADMIN_PASSWORD = 'admin@123';
+
+  function handleLogin(event){
+    event.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    const errorBox = document.getElementById('loginError');
+
+    if(!email || !password){
+      errorBox.textContent = 'Enter both an email and a password.';
+      errorBox.style.display = 'block';
+      return false;
+    }
+
+    if(email === ADMIN_EMAIL && password === ADMIN_PASSWORD){
+      window.location.href = 'admin.html';
+    } else {
+      window.location.href = 'homepage.html';
+    }
+    return false;
+  }
+</script>
 </body>
 </html>

@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NewsPortal – Navbar</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+<style>
+/* ══════════════════════════════════
+   THEME VARIABLES
+══════════════════════════════════ */
+:root[data-theme="light"]{
+  --bg:          #f2f0eb;
+  --bg2:         #e8e5de;
+  --surface:     #ffffff;
+  --surface2:    #f7f5f0;
+  --border:      #d4cfc4;
+  --text:        #1a1714;
+  --text2:       #4a4540;
+  --text3:       #8a8278;
+  --accent:      #c0392b;
+  --accent2:     #e74c3c;
+  --tag-bg:      #ede9e0;
+  --nav-bg:      #1a1714;
+  --nav-text:    #f2f0eb;
+  --shadow:      rgba(0,0,0,0.08);
+  --shadow2:     rgba(0,0,0,0.15);
+  --scope-active:#c0392b;
+  --badge:       #c0392b;
+}
+:root[data-theme="dark"]{
+  --bg:          #0f0e0d;
+  --bg2:         #171614;
+  --surface:     #1e1c1a;
+  --surface2:    #252320;
+  --border:      #2e2b28;
+  --text:        #ede9e0;
+  --text2:       #a09890;
+  --text3:       #605850;
+  --accent:      #e74c3c;
+  --accent2:     #ff6b5b;
+  --tag-bg:      #2a2724;
+  --nav-bg:      #0a0908;
+  --nav-text:    #ede9e0;
+  --shadow:      rgba(0,0,0,0.35);
+  --shadow2:     rgba(0,0,0,0.55);
+  --scope-active:#e74c3c;
+  --badge:       #e74c3c;
+}
+
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:'Source Serif 4',serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  transition:background .3s,color .3s;
+}
+
+/* ══════════════════════════════════
+   TOPBAR  (logo | search | actions)
+══════════════════════════════════ */
+.topbar{
+  position:sticky;top:0;z-index:900;
+  background:var(--nav-bg);
+  color:var(--nav-text);
+  display:flex;align-items:center;
+  padding:0 24px;
+  height:58px;
+  gap:16px;
+  box-shadow:0 2px 12px rgba(0,0,0,.4);
+}
+
+.logo{
+  font-family:'Playfair Display',serif;
+  font-size:22px;font-weight:900;
+  color:var(--accent);
+  letter-spacing:-.5px;
+  white-space:nowrap;
+  margin-right:8px;
+}
+.logo span{color:var(--nav-text);}
+
+/* Search bar */
+.search-wrap{
+  flex:1;
+  display:flex;align-items:center;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.12);
+  border-radius:6px;
+  padding:0 12px;
+  max-width:460px;
+}
+.search-wrap input{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--nav-text);font-family:'Source Serif 4',serif;
+  font-size:14px;padding:8px 6px;
+}
+.search-wrap input::placeholder{color:rgba(255,255,255,.35);}
+.search-wrap svg{opacity:.45;flex-shrink:0;}
+
+/* Nav action icons */
+.nav-actions{display:flex;align-items:center;gap:4px;margin-left:auto;}
+.nav-btn{
+  position:relative;
+  background:transparent;border:none;
+  color:var(--nav-text);
+  padding:8px 10px;border-radius:6px;
+  cursor:pointer;font-size:18px;
+  display:flex;align-items:center;gap:5px;
+  transition:background .2s;
+  white-space:nowrap;
+}
+.nav-btn:hover{background:rgba(255,255,255,.1);}
+.nav-btn .label{font-size:11px;font-family:'Source Serif 4',serif;opacity:.7;letter-spacing:.04em;}
+.badge{
+  position:absolute;top:6px;right:6px;
+  background:var(--badge);
+  color:#fff;border-radius:99px;
+  font-size:9px;font-weight:700;
+  min-width:16px;height:16px;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 3px;
+}
+
+/* Logout button - visually distinct */
+.nav-btn.logout-btn{
+  color:var(--accent2);
+}
+.nav-btn.logout-btn:hover{
+  background:rgba(231,76,60,.15);
+}
+.nav-btn.logout-btn .label{
+  opacity:.9;
+  color:var(--accent2);
+}
+
+/* Theme toggle inside nav */
+.toggle-pill{
+  width:46px;height:24px;
+  background:rgba(255,255,255,.15);
+  border:1px solid rgba(255,255,255,.2);
+  border-radius:999px;cursor:pointer;
+  position:relative;display:flex;
+  align-items:center;padding:0 3px;
+  transition:background .3s;
+  flex-shrink:0;
+}
+.toggle-knob{
+  width:18px;height:18px;
+  background:var(--nav-text);
+  border-radius:50%;
+  transition:transform .3s cubic-bezier(.4,0,.2,1);
+  font-size:11px;display:flex;align-items:center;justify-content:center;
+}
+[data-theme="dark"] .toggle-knob{transform:translateX(22px);}
+
+/* ══════════════════════════════════
+   SECONDARY BAR
+══════════════════════════════════ */
+.subbar{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;height:46px;gap:0;
+  transition:background .3s;
+}
+.subbar-section{
+  display:flex;align-items:center;
+  padding:0 16px;height:100%;
+  border-right:1px solid var(--border);
+  gap:10px;
+}
+.subbar-section:last-child{border-right:none;margin-left:auto;}
+
+.rec-label{
+  font-size:13px;font-weight:600;
+  color:var(--text2);letter-spacing:.04em;text-transform:uppercase;
+}
+.rec-tags{display:flex;gap:6px;flex-wrap:nowrap;overflow-x:auto;}
+.rec-tag{
+  background:var(--tag-bg);
+  color:var(--text2);
+  font-size:12px;padding:3px 10px;
+  border-radius:99px;cursor:pointer;
+  border:1px solid var(--border);
+  white-space:nowrap;
+  transition:background .2s,color .2s,border-color .2s;
+}
+.rec-tag:hover,.rec-tag.active{
+  background:var(--accent);color:#fff;border-color:var(--accent);
+}
+
+/* Scope dropdown */
+.scope-wrap{position:relative;}
+.scope-btn{
+  display:flex;align-items:center;gap:6px;
+  background:transparent;border:1px solid var(--border);
+  border-radius:6px;padding:5px 12px;
+  cursor:pointer;color:var(--text);
+  font-family:'Source Serif 4',serif;font-size:13px;
+  transition:border-color .2s,background .2s;
+}
+.scope-btn:hover{border-color:var(--accent);background:var(--tag-bg);}
+.scope-btn .arrow{font-size:10px;opacity:.5;transition:transform .2s;}
+.scope-btn.open .arrow{transform:rotate(180deg);}
+
+.scope-menu{
+  position:absolute;right:0;top:calc(100%+6px);
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:8px;
+  box-shadow:0 8px 24px var(--shadow2);
+  overflow:hidden;min-width:140px;
+  display:none;z-index:500;
+}
+.scope-menu.show{display:block;animation:fadeDown .18s ease;}
+@keyframes fadeDown{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+.scope-item{
+  padding:10px 16px;font-size:13px;cursor:pointer;
+  display:flex;align-items:center;gap:10px;
+  color:var(--text2);transition:background .15s,color .15s;
+}
+.scope-item:hover{background:var(--tag-bg);color:var(--text);}
+.scope-item.active{color:var(--accent);font-weight:600;}
+.scope-item .dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--border);flex-shrink:0;
+}
+.scope-item.active .dot{background:var(--accent);}
+
+/* ══════════════════════════════════
+   CATEGORY STRIP
+══════════════════════════════════ */
+.catbar{
+  background:var(--surface2);
+  border-bottom:2px solid var(--border);
+  display:flex;align-items:center;
+  padding:0 24px;gap:0;
+  overflow-x:auto;
+  transition:background .3s;
+}
+.cat{
+  padding:12px 18px;
+  cursor:pointer;white-space:nowrap;
+  border-bottom:2px solid transparent;
+  margin-bottom:-2px;
+  color:var(--text2);
+  letter-spacing:.03em;
+  font-weight:600;
+  transition:color .2s,border-color .2s;
+  text-transform:uppercase;font-size:11.5px;
+}
+.cat:hover{color:var(--text);}
+.cat.active{color:var(--accent);border-bottom-color:var(--accent);}
+
+/* scrollbar */
+::-webkit-scrollbar{width:5px;height:5px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:99px;}
+
+@media(max-width:600px){
+  .topbar{padding:0 12px;}
+  .search-wrap{max-width:none;}
+  .subbar,.catbar{padding:0 12px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════════ TOP NAV ══════════ -->
+<nav class="topbar">
+  <div class="logo">VOICE OF <span>PEOPLE</span></div>
+
+  <div class="search-wrap">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" placeholder="Search stories, topics, people…" id="searchInput"/>
+  </div>
+
+  <div class="nav-actions">
+    <a href="alert.html" class="nav-btn" title="Notifications">
+  🔔
+  
+  <span class="label">Alerts</span>
+</a>
+    <a href="chat.html" class="nav-btn" title="Messages">
+  ✉️
+  
+  <span class="label">Messages</span>
+</a>
+    <a href="setting.html" class="nav-btn">
+      ⚙️
+      <span class="label">Settings</span>
+    </button>
+    </a>
+
+    <!-- Dark / Light toggle -->
+    <div class="toggle-pill" onclick="toggleTheme()" title="Toggle theme">
+      <div class="toggle-knob" id="themeKnob">
+        <span id="themeIcon">☀️</span>
+      </div>
+    </div>
+
+    <button class="nav-btn logout-btn" id="logoutBtn" title="Logout">
+      🚪
+      <span class="label">Logout</span>
+    </button>
+  </div>
+</nav>
+
+<!-- ══════════ SECONDARY BAR ══════════ -->
+<div class="subbar">
+  <div class="subbar-section" style="border-right:1px solid var(--border);padding-right:16px;">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" style="opacity:.4">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <span class="rec-label">Recommended</span>
+  </div>
+  <div class="subbar-section" style="flex:1;border-right:1px solid var(--border);">
+    <div class="rec-tags" id="recTags">
+      <span class="rec-tag active" onclick="setRec(this)">For You</span>
+      <span class="rec-tag" onclick="setRec(this)">Trending</span>
+      <span class="rec-tag" onclick="setRec(this)">Latest</span>
+      <span class="rec-tag" onclick="setRec(this)">Bookmarked</span>
+      <span class="rec-tag" onclick="setRec(this)">Following</span>
+    </div>
+  </div>
+  <div class="subbar-section" style="border-right:none;">
+    <div class="scope-wrap">
+      <button class="scope-btn" id="scopeBtn" onclick="toggleScope()">
+        🌐 <span id="scopeLabel">Global</span> <span class="arrow">▾</span>
+      </button>
+      <div class="scope-menu" id="scopeMenu">
+        <div class="scope-item active" onclick="setScope(this,'🌐','Global')">
+          <span class="dot"></span> Global
+        </div>
+        <div class="scope-item" onclick="setScope(this,'🗺️','National')">
+          <span class="dot"></span> National
+        </div>
+        <div class="scope-item" onclick="setScope(this,'📍','Local')">
+          <span class="dot"></span> Local
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════ CATEGORY STRIP ══════════ -->
+<div class="catbar" id="catbar">
+  <div class="cat active" onclick="setCat(this)">All</div>
+  <div class="cat" onclick="setCat(this)">Sports ⚽</div>
+  <div class="cat" onclick="setCat(this)">Politics 🏛️</div>
+  <div class="cat" onclick="setCat(this)">Technology 💻</div>
+  <div class="cat" onclick="setCat(this)">Business 📈</div>
+  <div class="cat" onclick="setCat(this)">Health 🏥</div>
+  <div class="cat" onclick="setCat(this)">Science 🔬</div>
+  <div class="cat" onclick="setCat(this)">Entertainment 🎬</div>
+  <div class="cat" onclick="setCat(this)">World 🌍</div>
+  <div class="cat" onclick="setCat(this)">Opinion ✍️</div>
+</div>
+
+<script>
+// ── Theme ──
+function toggleTheme(){
+  const root=document.documentElement;
+  const isDark=root.getAttribute('data-theme')==='dark';
+  root.setAttribute('data-theme', isDark?'light':'dark');
+  document.getElementById('themeIcon').textContent=isDark?'☀️':'🌙';
+}
+
+// ── Scope dropdown ──
+function toggleScope(){
+  const btn=document.getElementById('scopeBtn');
+  const menu=document.getElementById('scopeMenu');
+  btn.classList.toggle('open');
+  menu.classList.toggle('show');
+}
+function setScope(el,icon,label){
+  document.querySelectorAll('.scope-item').forEach(i=>i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('scopeBtn').innerHTML=icon+' <span id="scopeLabel">'+label+'</span> <span class="arrow">▾</span>';
+  document.getElementById('scopeMenu').classList.remove('show');
+  document.getElementById('scopeBtn').classList.remove('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.scope-wrap')){
+    document.getElementById('scopeMenu').classList.remove('show');
+    document.getElementById('scopeBtn').classList.remove('open');
+  }
+});
+
+// ── Recommendation tags ──
+function setRec(el){
+  document.querySelectorAll('.rec-tag').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Category ──
+function setCat(el){
+  document.querySelectorAll('.cat').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+}
+
+// ── Logout ──
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  window.location.href = 'index.html';
+});
+</script>
+</body>
+</html>

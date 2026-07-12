@@ -5,11 +5,14 @@ e.preventDefault();
 let name = document.getElementById("name").value;
 let email = document.getElementById("email").value;
 let password = document.getElementById("password").value;
+let DOB = document.getElementById("DOB").value;
+
 
 let user = {
-name:name,
-email:email,
-password:password
+name: name,
+email: email,
+password: password,
+DOB: DOB
 };
 
 localStorage.setItem("user", JSON.stringify(user));

@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>NewsPortal – Homepage</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      font-family: 'Source Serif 4', serif;
+    }
+
+    /* Loading spinner */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-size: 13px;
+      color: #888;
+    }
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2px solid #ddd;
+      border-top-color: #c0392b;
+      border-radius: 50%;
+      animation: spin .6s linear infinite;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Error state */
+    .load-error {
+      padding: 12px 20px;
+      background: #fff3f3;
+      color: #c0392b;
+      font-size: 13px;
+      border-left: 3px solid #c0392b;
+      margin: 8px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── NAVBAR ── -->
+  <div id="navbar-container">
+    <div class="loading"><div class="spinner"></div> Loading navbar…</div>
+  </div>
+
+  <!-- ── CARDS ── -->
+  <div id="cards-container">
+    <div class="loading"><div class="spinner"></div> Loading cards…</div>
+  </div>
+
+  <!-- ── FOOTER ── -->
+  <div id="footer-container">
+    <div class="loading"><div class="spinner"></div> Loading footer…</div>
+  </div>
+
+  <script>
+    async function loadComponent(filePath, containerId) {
+      const container = document.getElementById(containerId);
+      try {
+        const res = await fetch(filePath);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const html = await res.text();
+
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, 'text/html');
+
+        // 1. Inject <link> stylesheet tags — skip duplicates
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(link => {
+          const href = link.getAttribute('href');
+          if (href && !document.querySelector(`link[href="${href}"]`)) {
+            const el = document.createElement('link');
+            el.rel  = 'stylesheet';
+            el.href = href;
+            document.head.appendChild(el);
+          }
+        });
+
+        // 2. Inject <style> blocks
+        doc.querySelectorAll('style').forEach(style => {
+          const el = document.createElement('style');
+          el.textContent = style.textContent;
+          document.head.appendChild(el);
+        });
+
+        // 3. Inject body HTML into container
+        container.innerHTML = doc.body.innerHTML;
+
+        // 4. Re-execute <script> tags (they don't run after innerHTML)
+        container.querySelectorAll('script').forEach(old => {
+          const s = document.createElement('script');
+          s.textContent = old.textContent;
+          old.replaceWith(s);
+        });
+
+      } catch (err) {
+        console.error(`Failed to load ${filePath}:`, err);
+        container.innerHTML = `
+          <div class="load-error">
+            ⚠️ Could not load <strong>${filePath}</strong>.
+            Make sure it exists in the same folder as homepage.html
+            and you are running a local server (VS Code Live Server).
+          </div>`;
+      }
+    }
+
+    // Load all three components
+    loadComponent('navbar.html',  'navbar-container');
+    loadComponent('cards.html',   'cards-container');
+    loadComponent('footer.html',  'footer-container');
+  </script>
+
+</body>
+</html>
